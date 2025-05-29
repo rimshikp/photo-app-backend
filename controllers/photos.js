@@ -31,7 +31,7 @@ const watermarkImage = Buffer.from(`
     <text x="50%" y="50%" font-family="Arial" font-size="20" 
           fill="rgba(255,255,255,0.5)" text-anchor="middle" 
           dominant-baseline="middle" transform="rotate(-45 100 50)">
-      ${process.env.WATERMARK_TEXT || "WorkFotos"}
+      ${"WorkFotos"}
     </text>
   </svg>
 `);

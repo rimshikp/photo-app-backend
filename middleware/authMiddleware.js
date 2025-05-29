@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-
-const JWT_SECRET = process.env.JWT_SECRET;
+const{JWT_SECRET} =require('../config')
 
 const authenticateUser = (allowedRoles = []) => {
   return (req, res, next) => {
