@@ -6,15 +6,15 @@ const {AWS_ACCESS_KEY_ID,AWS_REGION,AWS_S3_BUCKET_NAME,AWS_SECRET_ACCESS_KEY} =r
 
 const s3 = new S3Client({
   credentials: {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    accessKeyId: "AKIAQ4NSA45HTVDRWSXF",
+    secretAccessKey: "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",
   },
-  region: AWS_REGION,
+  region: "us-east-1",
 });
 
 const s3Storage = multerS3({
   s3: s3,
-  bucket: AWS_S3_BUCKET_NAME,
+  bucket: "workfoto-photo-app",
 
   metadata: (req, file, cb) => {
     cb(null, {

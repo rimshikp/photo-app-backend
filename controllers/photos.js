@@ -19,10 +19,10 @@ const {AWS_ACCESS_KEY_ID,AWS_S3_BUCKET_NAME,AWS_REGION,AWS_SECRET_ACCESS_KEY,} =
 
 const s3 = new S3Client({
   credentials: {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey:AWS_SECRET_ACCESS_KEY,
+    accessKeyId: "AKIAQ4NSA45HTVDRWSXF",
+    secretAccessKey:"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",
   },
-  region: AWS_REGION,
+  region: "us-east-1",
 });
 
 const watermarkImage = Buffer.from(`
@@ -34,6 +34,16 @@ const watermarkImage = Buffer.from(`
     </text>
   </svg>
 `);
+
+
+const streamToBuffer = async (stream) => {
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+};
+
 
 exports.photoUploadImages = async (req, res) => {
   try {
@@ -67,37 +77,42 @@ exports.photoUploadImages = async (req, res) => {
       req.files.map(async (file) => {
         try {
           const getObjectParams = {
-            Bucket: AWS_S3_BUCKET_NAME,
+            Bucket: 'workfoto-photo-app',
             Key: file.key,
           };
 
           const command = new GetObjectCommand(getObjectParams);
-          const url = await getSignedUrl(s3, command, {
-            expiresIn: 3600,
+          const response = await s3.send(command);
+          const fileBuffer = await streamToBuffer(response.Body);
+          // const url = await getSignedUrl(s3, command, {
+          //   expiresIn: 3600,
 
-            signableHeaders: new Set(),
-            unsignableHeaders: new Set(),
-            signingRegion:AWS_REGION,
-            signingService: "s3",
-          });
+          //   signableHeaders: new Set(),
+          //   unsignableHeaders: new Set(),
+          //   signingRegion:"us-east-1",
+          //   signingService: "s3",
+          // });
 
-          let fileBuffer;
-          try {
-            const response = await axios.get(url, {
-              responseType: "arraybuffer",
-              timeout: 10000,
-              validateStatus: function (status) {
-                return status >= 200 && status < 300;
-              },
-            });
-            fileBuffer = Buffer.from(response.data, "binary");
-          } catch (downloadError) {
-            console.error(
-              `Failed to download ${file.originalname} from S3:`,
-              downloadError
-            );
-            throw new Error(`Failed to download ${file.originalname} from S3`);
-          }
+          
+
+
+          // let fileBuffer;
+          // try {
+          //   const response = await axios.get(url, {
+          //     responseType: "arraybuffer",
+          //     timeout: 10000,
+          //     validateStatus: function (status) {
+          //       return status >= 200 && status < 300;
+          //     },
+          //   });
+          //   fileBuffer = Buffer.from(response.data, "binary");
+          // } catch (downloadError) {
+          //   console.error(
+          //     `Failed to download ${file.originalname} from S3:`,
+          //     downloadError
+          //   );
+          //   throw new Error(`Failed to download ${file.originalname} from S3`);
+          // }
 
           const originalImage = sharp(fileBuffer);
           const originalMetadata = await originalImage.metadata();
@@ -202,15 +217,16 @@ exports.photoUploadImages = async (req, res) => {
 async function uploadToS3(key, buffer, contentType) {
   try {
     const uploadParams = {
-      Bucket: AWS_S3_BUCKET_NAME,
+      Bucket: 'workfoto-photo-app',
       Key: key,
       Body: buffer,
       ContentType: contentType,
       // ACL: "public-read",
+      ACL: 'bucket-owner-full-control',
     };
 
     await s3.send(new PutObjectCommand(uploadParams));
-    return `https://${AWS_S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${key}`;
+    return `https://${"workfoto-photo-app"}.s3.${'us-east-1'}.amazonaws.com/${key}`;
   } catch (error) {
     console.error("S3 upload error:", error);
     throw new Error("Failed to upload to S3");
