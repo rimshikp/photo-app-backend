@@ -5,12 +5,12 @@ const User = require("../models/users");
 const Order = require("../models/orders");
 const Photo = require("../models/photos");
 const PurchasePhoto = require("../models/purchased_photo");
-const {RAZORPAY_KEY_ID} =require('../config')
+const {RAZORPAY_KEY_ID,RAZORPAY_KEY_SECRET} =require('../config')
 let razorpayInstance;
 try {
   razorpayInstance = new razorpay({
-    key_id: "rzp_test_W6FMLPfJeo1u3a",
-    key_secret: "kRx699VfTRmRoi06cmW5iaEY",
+    key_id: RAZORPAY_KEY_ID,
+    key_secret: RAZORPAY_KEY_SECRET,
   });
 } catch (error) {
   console.error("Razorpay initialization failed:", error);

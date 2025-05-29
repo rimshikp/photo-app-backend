@@ -2,7 +2,7 @@ const { S3Client } = require("@aws-sdk/client-s3");
 const multerS3 = require("multer-s3");
 const multer = require("multer");
 const path = require("path");
-const {AWS_ACCESS_KEY_ID,AWS_REGION,AWS_SECRET_ACCESS_KEY} =require('../config')
+const {AWS_ACCESS_KEY_ID,AWS_REGION,AWS_S3_BUCKET_NAME,AWS_SECRET_ACCESS_KEY} =require('../config')
 
 const s3 = new S3Client({
   credentials: {
@@ -14,7 +14,7 @@ const s3 = new S3Client({
 
 const s3Storage = multerS3({
   s3: s3,
-  bucket: "workfoto-photo-app",
+  bucket: AWS_S3_BUCKET_NAME,
 
   metadata: (req, file, cb) => {
     cb(null, {

@@ -77,7 +77,7 @@ exports.photoUploadImages = async (req, res) => {
 
             signableHeaders: new Set(),
             unsignableHeaders: new Set(),
-            signingRegion: "us-east-1",
+            signingRegion:AWS_REGION,
             signingService: "s3",
           });
 
