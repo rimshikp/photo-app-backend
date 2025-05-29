@@ -16,13 +16,14 @@ const Ratings = require("../models/ratings");
 const Order = require("../models/orders");
 const axios = require("axios");
 const path = require("path");
+const {AWS_ACCESS_KEY_ID,AWS_S3_BUCKET_NAME,AWS_REGION,AWS_SECRET_ACCESS_KEY,} =require('../config')
 
 const s3 = new S3Client({
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey:AWS_SECRET_ACCESS_KEY,
   },
-  region: process.env.AWS_REGION,
+  region: AWS_REGION,
 });
 
 const watermarkImage = Buffer.from(`
@@ -67,7 +68,7 @@ exports.photoUploadImages = async (req, res) => {
       req.files.map(async (file) => {
         try {
           const getObjectParams = {
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Bucket: AWS_S3_BUCKET_NAME,
             Key: file.key,
           };
 
@@ -202,7 +203,7 @@ exports.photoUploadImages = async (req, res) => {
 async function uploadToS3(key, buffer, contentType) {
   try {
     const uploadParams = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: AWS_S3_BUCKET_NAME,
       Key: key,
       Body: buffer,
       ContentType: contentType,
@@ -210,7 +211,7 @@ async function uploadToS3(key, buffer, contentType) {
     };
 
     await s3.send(new PutObjectCommand(uploadParams));
-    return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    return `https://${AWS_S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${key}`;
   } catch (error) {
     console.error("S3 upload error:", error);
     throw new Error("Failed to upload to S3");

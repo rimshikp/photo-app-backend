@@ -7,7 +7,7 @@ const User = require("../models/users");
 const Order = require("../models/orders");
 const Photo = require("../models/photos");
 const PurchasePhoto = require("../models/purchased_photo");
-
+const {RAZORPAY_KEY_ID} =require('../config')
 let razorpayInstance;
 try {
   razorpayInstance = new razorpay({
@@ -86,7 +86,7 @@ exports.createOrder = async (req, res) => {
         amount: newOrder.totalAmount,
         currency: newOrder.currency,
         razorpay_order_id: razorpayOrder.id,
-        key: process.env.RAZORPAY_KEY_ID,
+        key: RAZORPAY_KEY_ID,
       },
     });
   } catch (err) {

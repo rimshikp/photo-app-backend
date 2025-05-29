@@ -6,7 +6,7 @@ const multer = require("multer");
 
 const User = require("../models/users");
 const sendEmail = require("../config/sendEmail");
-
+const {JWT_SECRET,APP_URL} = require("../config");
 exports.userSignUp = async (req, res) => {
   try {
     const { full_name, email, password, role } = req.body;
@@ -35,11 +35,11 @@ exports.userSignUp = async (req, res) => {
     });
     await user.save();
 
-    const emailToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const emailToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1d",
     });
 
-    const verifyUrl = `${process.env.APP_URL}verify-email?token=${emailToken}`;
+    const verifyUrl = `${APP_URL}verify-email?token=${emailToken}`;
 
     const html = `<p>Hello ${user.full_name},</p>
              <p>Please verify your email by clicking the link below:</p>
@@ -70,12 +70,12 @@ exports.forgotPassword = async (req, res) => {
 
     const emailToken = jwt.sign(
       { userId: existingUser._id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       {
         expiresIn: "1d",
       }
     );
-    const passwordChange = `${process.env.APP_URL}reset-password?token=${emailToken}`;
+    const passwordChange = `${APP_URL}reset-password?token=${emailToken}`;
 
     const html = `<p>Hello ${existingUser.full_name},</p>
              <p>You can update the password by clicking the link below:</p>
@@ -95,7 +95,7 @@ exports.resetPassword = async (req, res) => {
   try {
     const { password, token } = req.body;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(400).json({ status: false, message: "Invalid token." });
@@ -127,11 +127,11 @@ exports.resendEmail = async (req, res) => {
         .json({ status: false, message: "User not found." });
     }
 
-    const emailToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const emailToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1d",
     });
 
-    const verifyUrl = `${process.env.APP_URL}verify-email?token=${emailToken}`;
+    const verifyUrl = `${APP_URL}verify-email?token=${emailToken}`;
 
     const html = `<p>Hello ${user.full_name},</p>
              <p>Please verify your email by clicking the link below:</p>
@@ -169,7 +169,7 @@ exports.loginAdmin = async (req, res) => {
     }
     const token = jwt.sign(
       { userId: userdata._id, email: userdata.email, role: userdata.role },
-      process.env.JWT_SECRET
+      JWT_SECRET
     );
     return res.status(200).json({
       message: "Login successful.",
@@ -211,13 +211,13 @@ exports.loginPhoto = async (req, res) => {
     if (!userdata.is_email_verified) {
       const emailToken = jwt.sign(
         { userId: userdata._id, role: userdata.role },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         {
           expiresIn: "1d",
         }
       );
 
-      const verifyUrl = `${process.env.APP_URL}verify-email?token=${emailToken}`;
+      const verifyUrl = `${APP_URL}verify-email?token=${emailToken}`;
 
       const html = `<p>Hello ${userdata.full_name},</p>
              <p>Please verify your email by clicking the link below:</p>
@@ -232,7 +232,7 @@ exports.loginPhoto = async (req, res) => {
 
     const token = jwt.sign(
       { userId: userdata._id, email: userdata.email, role: userdata.role },
-      process.env.JWT_SECRET
+      JWT_SECRET
     );
     return res.status(200).json({
       message: "Login successful.",
@@ -273,13 +273,13 @@ exports.loginUser = async (req, res) => {
     if (!userdata.is_email_verified) {
       const emailToken = jwt.sign(
         { userId: userdata._id, role: userdata.role },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         {
           expiresIn: "1d",
         }
       );
 
-      const verifyUrl = `${process.env.APP_URL}verify-email?token=${emailToken}`;
+      const verifyUrl = `${APP_URL}verify-email?token=${emailToken}`;
 
       const html = `<p>Hello ${userdata.full_name},</p>
              <p>Please verify your email by clicking the link below:</p>
@@ -294,7 +294,7 @@ exports.loginUser = async (req, res) => {
 
     const token = jwt.sign(
       { userId: userdata._id, email: userdata.email, role: userdata.role },
-      process.env.JWT_SECRET
+      JWT_SECRET
     );
     return res.status(200).json({
       message: "Login successful.",
@@ -316,7 +316,7 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.body;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(400).json({ status: false, message: "Invalid token." });
