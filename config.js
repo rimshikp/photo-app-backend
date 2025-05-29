@@ -1,12 +1,19 @@
-exports.MONGO_URI="mongodb+srv://rimshi:Azv9Yp8WHQQbM!5@cluster0.i0byfcz.mongodb.net/glleryapp?retryWrites=true&w=majority&appName=Cluster0"
-exports.PORT=4000
-exports.JWT_SECRET ="photo_gallery_app"
-exports.SMTP_USER="safvanvk555@gmail.com"
-exports.SMTP_PASS="ihpykjjqfhxfsmkb"
-exports.APP_URL="http://localhost:3000/"
-exports.AWS_ACCESS_KEY_ID="AKIAQ4NSA45H6GUARZUD"
-exports.AWS_SECRET_ACCESS_KEY="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"
-exports.AWS_REGION="us-east-1"
-exports.AWS_S3_BUCKET_NAME="workfoto-photo-app",
-exports.RAZORPAY_KEY_ID = "rzp_test_W6FMLPfJeo1u3a",
-exports.RAZORPAY_KEY_SECRET  = "kRx699VfTRmRoi06cmW5iaEY"
+require('dotenv').config();
+
+module.exports = {
+  MONGO_URI: process.env.MONGO_URI,
+  PORT: process.env.PORT || 4000,
+  JWT_SECRET: process.env.JWT_SECRET,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  APP_URL: process.env.APP_URL,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_REGION: process.env.AWS_REGION,
+  AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+};
