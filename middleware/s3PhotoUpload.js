@@ -6,10 +6,10 @@ const {AWS_ACCESS_KEY_ID,AWS_REGION,AWS_S3_BUCKET_NAME,AWS_SECRET_ACCESS_KEY} =r
 
 const s3 = new S3Client({
   credentials: {
-    accessKeyId: "AKIAQ4NSA45HTVDRWSXF",
-    secretAccessKey: "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",
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
-  region: "us-east-1",
+  region: AWS_REGION,
 });
 
 const s3Storage = multerS3({
