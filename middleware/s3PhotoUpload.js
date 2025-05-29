@@ -14,7 +14,7 @@ const s3 = new S3Client({
 
 const s3Storage = multerS3({
   s3: s3,
-  bucket: AWS_S3_BUCKET_NAME,
+  bucket: "workfoto-photo-app",
 
   metadata: (req, file, cb) => {
     cb(null, {
