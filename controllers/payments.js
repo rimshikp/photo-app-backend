@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const crypto = require("crypto");
 const axios = require("axios");
 const razorpay = require("razorpay");

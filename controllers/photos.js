@@ -1,4 +1,3 @@
-require("dotenv").config();
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const {
