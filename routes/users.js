@@ -15,7 +15,9 @@ const {
   loginAdmin,
   listPhotoGrapher,
   listCustomers,
-  deleteUser
+  deleteUser,
+  getUserbyId,
+  getPurchasedPhotos
 } = require("../controllers/users");
 const authenticateUser = require("../middleware/authMiddleware");
 const uploadImage = require("../middleware/s3Upload");
@@ -36,6 +38,12 @@ router.get(
   authenticateUser(["photographer", "user", "admin"]),
   getUser
 );
+router.post(
+  "/get-user/:id",
+  authenticateUser(["photographer", "user", "admin"]),
+  getUserbyId
+);
+router.post("/purchased-photos", authenticateUser(["admin"]), getPurchasedPhotos);
 router.put(
   "/update/:id",
   authenticateUser(["photographer", "user", "admin"]),

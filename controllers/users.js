@@ -2,9 +2,14 @@ const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 
+const Order = require("../models/orders");
 const User = require("../models/users");
+const PurchasePhoto = require("../models/purchased_photo");
+const Likes = require("../models/likes");
+const Favorites = require("../models/favorites");
+
 const sendEmail = require("../config/sendEmail");
-const {JWT_SECRET,APP_URL} = require("../config");
+const { JWT_SECRET, APP_URL } = require("../config");
 exports.userSignUp = async (req, res) => {
   try {
     const { full_name, email, password, role } = req.body;
@@ -66,13 +71,9 @@ exports.forgotPassword = async (req, res) => {
       return res.status(400).json({ status: false, message: "User not found" });
     }
 
-    const emailToken = jwt.sign(
-      { userId: existingUser._id },
-      JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
+    const emailToken = jwt.sign({ userId: existingUser._id }, JWT_SECRET, {
+      expiresIn: "1d",
+    });
     const passwordChange = `${APP_URL}reset-password?token=${emailToken}`;
 
     const html = `<p>Hello ${existingUser.full_name},</p>
@@ -335,6 +336,52 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
+exports.getUserbyId = async (req, res) => {
+  try {
+    let { id } = req.params;
+    let content = await User.findOne({ _id: id }).lean();
+    let totalImages = await PurchasePhoto.countDocuments({ purchased_by: id });
+
+    //     const Likes = require("../models/likes");
+    // const Favorites = require("../models/favorites");
+
+    const photographerPhotos = await PurchasePhoto.find({
+      purchased_by: id,
+    }).select("_id");
+    const photoIds = photographerPhotos.map((photo) => photo._id);
+
+    const orders = await Order.find({
+      "photos.photoId": { $in: photoIds },
+      status: "completed",
+    });
+    let totalPurchased = 0;
+    let photoEarnings = {};
+
+    orders.forEach((order) => {
+      order.photos.forEach((photoItem) => {
+        if (photoIds.some((id) => id.equals(photoItem.photoId))) {
+          totalPurchased += photoItem.price;
+          const photoIdStr = photoItem.photoId.toString();
+          photoEarnings[photoIdStr] =
+            (photoEarnings[photoIdStr] || 0) + photoItem.price;
+        }
+      });
+    });
+    const totalLikedPhoto = await Likes.countDocuments({ user_id: id });
+    const totalFavouratePhoto = await Favorites.countDocuments({ user_id: id });
+    return res.status(200).json({
+      data: {
+        ...content,
+        totalImages,
+        totalPurchased,
+        totalLikedPhoto,
+        totalFavouratePhoto,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ status: false, message: "Server error" });
+  }
+};
 exports.getUser = async (req, res) => {
   try {
     const userdata = await User.findById(req.user.id);
@@ -455,6 +502,57 @@ exports.deleteUser = async (req, res) => {
     return res
       .status(200)
       .json({ status: true, message: "User deleted successfully." });
+  } catch (err) {
+    return res.status(500).json({ status: false, message: "Server error" });
+  }
+};
+
+exports.getPurchasedPhotos = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, eventIds, search, user = "" } = req.body;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    if (isNaN(pageNumber)) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid page number" });
+    }
+    if (isNaN(limitNumber)) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid limit value" });
+    }
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: false, message: "user is required" });
+    }
+
+    const query = { purchased_by: user };
+
+    const photos = await PurchasePhoto.find(query)
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber)
+      .populate(
+        "photo_id",
+        "name compressedImageUrl originalImageUrl watermarkImageUrl"
+      );
+
+    const totalPhotos = await PurchasePhoto.countDocuments(query);
+    const totalPages = Math.ceil(totalPhotos / limitNumber);
+    res.status(200).json({
+      success: true,
+      data: photos,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages,
+        totalItems: totalPhotos,
+        itemsPerPage: limitNumber,
+        hasNextPage: pageNumber < totalPages,
+        hasPreviousPage: pageNumber > 1,
+      },
+    });
   } catch (err) {
     return res.status(500).json({ status: false, message: "Server error" });
   }
